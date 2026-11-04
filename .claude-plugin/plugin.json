@@ -1,0 +1,7 @@
+{
+  "name": "sysmon",
+  "version": "0.1.0",
+  "description": "Disk, memory, CPU and network usage in a band above the prompt (macOS)",
+  "author": { "name": "jarvis-kim" },
+  "types": "./types/index.d.ts"
+}
