@@ -1,12 +1,11 @@
-import type { CpuStat, DiskStat, MemoryStat, NetworkStat } from '../types'
+import type { CpuStat, DiskStat, MemoryStat } from '../types'
 
 export type Level = 'ok' | 'warn' | 'high'
 
-/** One item of the band: a gauge (a bar beside it) or a plain figure. */
+/** One item of the band: a label, its gauge and its figure. */
 export type Metric = {
   label: string
   value: string
-  isGauge: boolean
   /** The gauge's fill, 0 to 1; null before the first sample. */
   ratio: number | null
 }
@@ -26,30 +25,17 @@ const percent = (ratio: number): string => `${Math.round(ratio * 100)}%`
 // One decimal under ten, whole numbers above: 0, 0.4, 7.2, 64.
 const amount = (n: number): string => (n < 10 ? String(Math.round(n * 10) / 10) : String(Math.round(n)))
 
-export function rate(bytesPerSec: number): string {
-  const kb = bytesPerSec / 1024
-
-  return kb < 1024 ? `${amount(kb)}KB/s` : `${amount(kb / 1024)}MB/s`
-}
-
-export function metrics(
-  disk: DiskStat | null,
-  memory: MemoryStat | null,
-  cpu: CpuStat | null,
-  network: NetworkStat | null,
-): Metric[] {
+export function metrics(disk: DiskStat | null, memory: MemoryStat | null, cpu: CpuStat | null): Metric[] {
   const memoryRatio = memory && memory.usedBytes / memory.totalBytes
 
   return [
     {
       label: '디스크',
-      isGauge: true,
       ratio: disk?.usedRatio ?? null,
       value: disk ? `${percent(disk.usedRatio)} · ${amount(disk.freeBytes / GB)}GB 남음` : NONE,
     },
     {
       label: '메모리',
-      isGauge: true,
       ratio: memoryRatio,
       value:
         memory && memoryRatio !== null
@@ -58,15 +44,8 @@ export function metrics(
     },
     {
       label: 'CPU',
-      isGauge: true,
       ratio: cpu?.usedRatio ?? null,
       value: cpu ? percent(cpu.usedRatio) : NONE,
-    },
-    {
-      label: '네트워크',
-      isGauge: false,
-      ratio: null,
-      value: network ? `↓${rate(network.downBytesPerSec)} ↑${rate(network.upBytesPerSec)}` : NONE,
     },
   ]
 }

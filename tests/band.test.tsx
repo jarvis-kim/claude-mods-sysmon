@@ -18,10 +18,9 @@ const STORED = {
   disk: { shape: 'disk-1', value: { usedRatio: 0.75, freeBytes: 64e9, totalBytes: 256e9 } },
   memory: { shape: 'memory-1', value: { usedBytes: 7.2 * GiB, totalBytes: 16 * GiB } },
   cpu: { shape: 'cpu-1', value: { usedRatio: 0.64 } },
-  network: { shape: 'network-1', value: { downBytesPerSec: 0, upBytesPerSec: 2048 } },
 }
 
-test('the band shows disk, memory, CPU and network on terminal and desktop', async ($, on) => {
+test('the band shows disk, memory and CPU on terminal and desktop', async ($, on) => {
   on('state.get', (_, e) => ({ value: { value: STORED[e.key], version: 1 } }))
 
   for (const surface of ['terminal', 'desktop'] as const) {
@@ -31,7 +30,7 @@ test('the band shows disk, memory, CPU and network on terminal and desktop', asy
     expect(texts).toMatch(/75% · 64GB 남음/)
     expect(texts).toMatch(/45% · 7\.2\/16GB/)
     expect(texts).toMatch(/64%/)
-    expect(texts).toMatch(/↓0KB\/s ↑2KB\/s/)
+    expect(texts).not.toMatch(/네트워크/)
     await ui.unmount()
   }
 })
